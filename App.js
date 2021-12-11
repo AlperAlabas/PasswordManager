@@ -5,23 +5,12 @@ import { Card } from 'react-native-elements';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Home from "./HomeScreen"
+import Settings from "./SettingsScreen"
 
 
-function HomeScreen() {
-  return (
-    <View style={styling.screen}>
-      <Text>Home!</Text>
-    </View>
-  );
-}
 
-function SettingsScreen() {
-  return (
-    <View style={styling.screen}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
+
 
 const Tab = createBottomTabNavigator();
 
