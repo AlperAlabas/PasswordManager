@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Home from "./HomeScreen"
 import Settings from "./SettingsScreen"
+import { ScreenHeight } from 'react-native-elements/dist/helpers';
 
 
 
@@ -15,6 +16,7 @@ import Settings from "./SettingsScreen"
 const Tab = createBottomTabNavigator();
 
 export default function App() {
+  
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -38,13 +40,15 @@ export default function App() {
         },
         tabBarActiveTintColor: '#EBD660',
         tabBarInactiveTintColor: 'white',
-        tabBarActiveBackgroundColor: "#4D4948",
-        tabBarInactiveBackgroundColor: "#4D4948",
+        tabBarActiveBackgroundColor: "transparent",
+        tabBarInactiveBackgroundColor: "transparent",
+        tabBarStyle: styling.tabBar,
+        headerTransparent:false,
         
       })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Settings" component={SettingsScreen} />
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
     </NavigationContainer>
   );
@@ -58,7 +62,8 @@ const styling = StyleSheet.create({
   },
   headerTitle:
   {
-    color:"white"
+    color:"white",
+    
   },
   screen:
   {
@@ -66,7 +71,17 @@ const styling = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     backgroundColor:"#EBD660"
-  }
+  },
+  tabBar:
+  {
+    position:"absolute",
+    height:(ScreenHeight*7)/100,
+    backgroundColor:"#4D4948",
+    paddingVertical:4,
+    alignItems:"center",
+    justifyContent:"center",
+    borderRadius:30
+  },
 });
 
 
