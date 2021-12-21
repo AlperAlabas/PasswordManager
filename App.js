@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet,View,Text } from 'react-native';
@@ -7,18 +8,30 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Home from "./HomeScreen"
 import Settings from "./SettingsScreen"
+import Login from "./LoginScreen"
+import Logout from "./LogoutScreen"
 import { ScreenHeight } from 'react-native-elements/dist/helpers';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import TabScreen from './TabScreen';
+
+
+
+
+const Stack = createStackNavigator();
 
 
 
 
 
-const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+
 
 export default function App() {
   
   return (
-    <NavigationContainer>
+    /*<NavigationContainer>
       <Tab.Navigator
 
       screenOptions={({ route }) => ({
@@ -50,6 +63,15 @@ export default function App() {
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Settings" component={Settings} />
       </Tab.Navigator>
+    </NavigationContainer>*/
+    <NavigationContainer>
+      <Stack.Navigator>
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Tab" component={TabScreen} />
+      
+      
+    </Stack.Navigator>
+      
     </NavigationContainer>
   );
 }

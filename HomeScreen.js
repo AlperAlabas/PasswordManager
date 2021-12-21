@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React, {useState,useEffect,useForceUpdate}from 'react';
 import { SafeAreaView, View, FlatList, StyleSheet, Text } from 'react-native';
@@ -6,6 +7,15 @@ import { Avatar ,Button, Overlay} from 'react-native-elements';
 import { ScreenHeight, ScreenWidth } from 'react-native-elements/dist/helpers';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import * as SQLite from "expo-sqlite";
+import Home from "./HomeScreen"
+import Settings from "./SettingsScreen"
+import Login from "./LoginScreen"
+import Logout from "./LogoutScreen"
+import { createStackNavigator } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
 
 function openDatabase() {
   if (Platform.OS === "web") {
@@ -64,7 +74,7 @@ export default function HomeScreen() {
 
   
   const db = openDatabase();
-    const [visible,setVisible]=useState(true);  
+    const [visible,setVisible]=useState(false);  
     const toggleOverlay = () => {
         setVisible(!visible);
     };
@@ -96,6 +106,7 @@ export default function HomeScreen() {
               <Button style={styling.button} raised={true} title="Submit" onPress={()=>{add(name,pass);
                 setName(null); setPass(null);}}></Button>
             </Overlay>
+            
         </SafeAreaView>
     );
 }
