@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import {getAuth ,signOut,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword } from "firebase/auth";
+
 import{app} from "./Firebase"
 
 const LoginScreen = () => {
@@ -17,7 +18,8 @@ const LoginScreen = () => {
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
           const uid = user.uid;
-          navigation.replace("Tab");// ...
+          
+          navigation.replace("PassJam");// ...
         } else {
           // User is signed out
           // ...

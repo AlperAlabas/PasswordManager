@@ -10,22 +10,25 @@ import Home from "./HomeScreen"
 import Settings from "./SettingsScreen"
 import Login from "./LoginScreen"
 import Logout from "./LogoutScreen"
+import TabScreen from './TabScreen';
 import { ScreenHeight } from 'react-native-elements/dist/helpers';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import SettingsScreen from './SettingsScreen';
 
-const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
-export default function TabScreen()
+export default function DrawerScreen()
 {
     return(
        
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Drawer.Navigator screenOptions={{ headerShown: false } }>
               
-              <Tab.Screen name="User" component={Settings} />
-              <Tab.Screen name="Logout" component={Logout} />
+              <Drawer.Screen name="Home" component={Home} />
+              <Drawer.Screen name="Settings" component={TabScreen} />
               
-      </Tab.Navigator>
+              
+      </Drawer.Navigator>
       
     )
 }

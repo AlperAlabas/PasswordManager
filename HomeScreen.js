@@ -14,66 +14,78 @@ import Logout from "./LogoutScreen"
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,query,onSnapshot,serverTimestamp} from "firebase/firestore";
+import {app} from "./Firebase" 
+import { getAuth ,onAuthStateChanged} from 'firebase/auth';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
+let apps=[];
+let emailUser;
 const Tab = createBottomTabNavigator();
+const auth = getAuth(app);
 
-function openDatabase() {
-  if (Platform.OS === "web") {
-    return {
-      transaction: () => {
-        return {
-          executeSql: () => {},
-        };
-      },
-    };
+
+const db = getFirestore(app);
+const user = auth.currentUser;
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    emailUser = user.email;
+    // ...
+  } else {
+    // User is signed out
+    // ...
   }
-
-  const db = SQLite.openDatabase("db.db");
-  return db;
-}
+});
 
 export default function HomeScreen() {
+  
   const [name, setName] = useState(null);
   const [pass, setPass] = useState(null);
   const [DATA, setData] = useState(null);
-
+  const [send, setSend] = useState(false);
   useEffect(() => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        `select * from items;`,
-        (_, { rows: { _array } }) => setData(_array)
-      );
-    });
-  }, []);
-
-  useEffect(() => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        "create table if not exists items (id integer primary key not null, appName text, password text);"
-      );
-    });
-  }, []);
-
-  const add = (name,pass) => {
-    // is text empty?
-    if ((name === null && pass === null)|| (name === "" && pass === "")) {
-      return false;
-    }
-
-    db.transaction(
-      (tx) => {
-        tx.executeSql("insert into items (appName, password) values (?, ?)", [name,pass]);
-        tx.executeSql("select * from items", [], (_, { rows }) =>
-          console.log(JSON.stringify(rows))
-        );
-      },
-      null,
+    apps=[];
+    const q = query(collection(db, emailUser));
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  
+  querySnapshot.forEach((doc) => {
+    const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+    
+      if (source=="Server") {
       
-    );
+        apps.push({
+          "title":doc.id,
+          "password":doc.get("Pass")
+        });
+      }
+  
+    
+     unsubscribe();
+  });
+  setData(apps);
+
+  
+});
+  },[DATA]);
+  async function add(name,pass) {
+    // is text empty?
+    
+  try {
+    const docRef = await setDoc(doc(db, emailUser,name), {
+    
+    Pass: pass,
+    
+  });
+  console.log("Document written with ID: ");
+  } catch (e) {
+  console.error("Error adding document: ", e);
+  }
   };
 
   
-  const db = openDatabase();
+  
     const [visible,setVisible]=useState(false);  
     const toggleOverlay = () => {
         setVisible(!visible);
@@ -84,7 +96,9 @@ export default function HomeScreen() {
             <View style={styling.viewRow}>
             <Card.Title>{item.title}</Card.Title>
             <Card.FeaturedSubtitle style={styling.CardSubTitle}>{item.password}</Card.FeaturedSubtitle>
+            
             </View>
+            <Button containerStyle={styling.cardButton} title="Del" buttonStyle={styling.cardButton}></Button>
         </Card>
         //<Item title={item.title} />
       );
@@ -104,9 +118,10 @@ export default function HomeScreen() {
               ></Input>
               <Input placeholder="Password" onChangeText={(text) => setPass(text)} ></Input>                
               <Button style={styling.button} raised={true} title="Submit" onPress={()=>{add(name,pass);
-                setName(null); setPass(null);}}></Button>
+                setName(null); setPass(null); setSend(!send); setVisible(!visible)}}></Button>
             </Overlay>
             
+      
         </SafeAreaView>
     );
 }
@@ -190,11 +205,19 @@ const styling = StyleSheet.create({
       position:"absolute",
       alignSelf:"center"
     },
+    cardButton:
+    {
+      
+      backgroundColor:"red",
+      justifyContent:'center',
+      alignSelf:"center"
+    },
     Card:
     {
         
+        flex:1,
         flexDirection: "row" ,
-        justifyContent: 'flex-start', 
+        justifyContent: 'space-between', 
     },
     item: {
         backgroundColor: '#f9c2ff',

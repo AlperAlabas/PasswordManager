@@ -14,7 +14,7 @@ import { ScreenHeight } from 'react-native-elements/dist/helpers';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import TabScreen from './TabScreen';
-
+import DrawerScreen from './DrawerScreen';
 
 
 
@@ -24,7 +24,7 @@ const Stack = createStackNavigator();
 
 
 
-const Drawer = createDrawerNavigator();
+
 
 
 
@@ -67,7 +67,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Tab" component={TabScreen} />
+      <Stack.Screen name="PassJam" component={DrawerScreen} />
+      
       
       
     </Stack.Navigator>
