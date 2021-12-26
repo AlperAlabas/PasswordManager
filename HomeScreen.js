@@ -98,7 +98,8 @@ console.error("Error adding document: ", e);
 }
 };
 export default function HomeScreen() {
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
   const [name, setName] = useState(null);
   const [pass, setPass] = useState(null);
   const [DATA, setData] = useState(null);
@@ -108,7 +109,15 @@ export default function HomeScreen() {
   const notificationListener = useRef();
   const responseListener = useRef();
   
+  async function fetchData(){
+    await getDB();
+    setIsFetching(false);
+  };
   
+  const onRefresh = () => {
+    setIsFetching(true);
+    fetchData();
+  };
     
   
   useEffect(()=>{getDB();},[]); 
@@ -160,7 +169,8 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styling.screen} >
             
-            <FlatList 
+            <FlatList onRefresh={onRefresh}
+            refreshing={isFetching}
             data={apps}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
