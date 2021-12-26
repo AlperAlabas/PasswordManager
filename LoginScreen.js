@@ -3,22 +3,68 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import {getAuth ,signOut,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword } from "firebase/auth";
-
+import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,query,onSnapshot,serverTimestamp,deleteDoc} from "firebase/firestore";
 import{app} from "./Firebase"
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 const LoginScreen = () => {
+  let userEmail;
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  
-  const navigation = useNavigation()
+  const db = getFirestore(app);
+  const navigation = useNavigation();
   const auth = getAuth(app);
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Constants.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    return token;
+  }
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
         if (user) {
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
           const uid = user.uid;
-          
+          userEmail=user.email;
+          registerForPushNotificationsAsync().then(async token => {
+            await setDoc(doc(db, "userData", userEmail), {
+              expoToken : token,
+            });
+      
+            Alert.alert(
+              "Good Job!",
+              "You have successfully logged in.",
+              [
+                { text: "OK", onPress: () => setAuth(true)}
+              ]
+            );
+          });// Signed in 
           navigation.replace("PassJam");// ...
         } else {
           // User is signed out
@@ -32,7 +78,7 @@ const LoginScreen = () => {
   const handleSignUp = () => {
     createUserWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
-    // Signed in 
+    
     const user = userCredential.user;
     // ...
   })
@@ -46,7 +92,7 @@ const LoginScreen = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
-    // Signed in 
+    
     const user = userCredential.user;
     // ...
   })
