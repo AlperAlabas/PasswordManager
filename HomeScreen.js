@@ -14,7 +14,7 @@ import Logout from "./LogoutScreen"
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,query,onSnapshot,serverTimestamp} from "firebase/firestore";
+import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,query,onSnapshot,serverTimestamp,deleteDoc} from "firebase/firestore";
 import {app} from "./Firebase" 
 import { getAuth ,onAuthStateChanged} from 'firebase/auth';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -35,12 +35,12 @@ Notifications.setNotificationHandler({
 
 const db = getFirestore(app);
 const user = auth.currentUser;
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth,(user) => {
   if (user) {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
     emailUser = user.email;
-    getDB();
+    
   } else {
     // User is signed out
     // ...
@@ -67,7 +67,18 @@ async function getDB(){
 } 
 
   
+async function delREC(name) {
+  // is text empty?
+  
+try {
 
+  const docRef = await deleteDoc(doc(db, emailUser,name));
+console.log("Document written with ID: ");
+
+} catch (e) {
+console.error("Error adding document: ", e);
+}
+};
 
 
 async function add(name,pass) {
@@ -87,7 +98,7 @@ console.error("Error adding document: ", e);
 }
 };
 export default function HomeScreen() {
-  
+  const [refreshing, setRefreshing] = React.useState(false);
   const [name, setName] = useState(null);
   const [pass, setPass] = useState(null);
   const [DATA, setData] = useState(null);
@@ -100,7 +111,7 @@ export default function HomeScreen() {
   
     
   
-    
+  useEffect(()=>{getDB();},[]); 
    
   
   
@@ -133,6 +144,7 @@ export default function HomeScreen() {
         setVisible(!visible);
   };
     const renderItem = ({ item }) => (
+        
         <Card wrapperStyle={styling.Card}>
             <Avatar avatarStyle={styling.avatarTitle} source={require("./assets/emptyIcon.png")} size="medium"  activeOpacity={0.6}/>
             <View style={styling.viewRow}>
@@ -140,20 +152,20 @@ export default function HomeScreen() {
             <Card.FeaturedSubtitle style={styling.CardSubTitle}>{item.password}</Card.FeaturedSubtitle>
             
             </View>
-            <Button containerStyle={styling.cardButton} title="Del" buttonStyle={styling.cardButton}></Button>
+            <Button containerStyle={styling.cardButton} title="Del" buttonStyle={styling.cardButton} onPress={async ()=>{await delREC(item.title); await getDB(); setData(apps);}}></Button>
         </Card>
         //<Item title={item.title} />
       );
 
     return (
-        <SafeAreaView style={styling.screen}>
+        <SafeAreaView style={styling.screen} >
             
-            <FlatList
+            <FlatList 
             data={apps}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
             />
-            <FAB style={{position:"absolute",left:(ScreenWidth*75)/100,top:(ScreenHeight*78)/100, padding:10,backgroundColor:"rgba(0,0,0,0)",borderRadius:0}} color="#4D4948" icon={<Icon name="plus" color="#EBD660"></Icon>} onPress={()=>{toggleOverlay();}}></FAB>
+            <FAB  style={{position:"absolute",left:(ScreenWidth*75)/100,top:(ScreenHeight*78)/100, padding:10,backgroundColor:"rgba(0,0,0,0)",borderRadius:0}} color="#4D4948" icon={<Icon name="plus" color="#EBD660"></Icon>} onPress={()=>{toggleOverlay();}}></FAB>
             
             <Overlay overlayStyle={styling.overlayStyling} isVisible={visible} onBackdropPress={toggleOverlay}>
               <Input placeholder="Associated App" onChangeText={(text) => setName(text)}
