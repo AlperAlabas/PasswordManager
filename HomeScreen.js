@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import React, {useState,useEffect,useForceUpdate}from 'react';
+import React, {useState,useEffect,useForceUpdate,useRef }from 'react';
 import { SafeAreaView, View, FlatList, StyleSheet, Text } from 'react-native';
 import { Card, FAB, Input } from 'react-native-elements';
 import { Avatar ,Button, Overlay} from 'react-native-elements';
@@ -18,12 +18,20 @@ import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,qu
 import {app} from "./Firebase" 
 import { getAuth ,onAuthStateChanged} from 'firebase/auth';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 let apps=[];
 let emailUser;
 const Tab = createBottomTabNavigator();
 const auth = getAuth(app);
-
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const db = getFirestore(app);
 const user = auth.currentUser;
@@ -32,64 +40,98 @@ onAuthStateChanged(auth, (user) => {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
     emailUser = user.email;
-    // ...
+    getDB();
   } else {
     // User is signed out
     // ...
   }
 });
 
+async function getDB(){
+  try {
+    apps=[];
+    const q = query(collection(db, emailUser));
+
+    const querySnapshot = await getDocs(q);
+      
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      apps.push({"title":doc.id,"password":doc.get("Pass")})
+    });
+  
+  } catch (error) {
+    console.error();
+  };
+  
+  
+} 
+
+  
+
+
+
+async function add(name,pass) {
+  // is text empty?
+  
+try {
+
+  const docRef = await setDoc(doc(db, emailUser,name), {
+  
+  Pass: pass,
+  
+});
+console.log("Document written with ID: ");
+
+} catch (e) {
+console.error("Error adding document: ", e);
+}
+};
 export default function HomeScreen() {
   
   const [name, setName] = useState(null);
   const [pass, setPass] = useState(null);
   const [DATA, setData] = useState(null);
   const [send, setSend] = useState(false);
-  useEffect(() => {
-    apps=[];
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  
+  
+    
+  
+    
+   
+  
+  
+    //getDB();
+    /*
     const q = query(collection(db, emailUser));
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
   
-  querySnapshot.forEach((doc) => {
-    const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
-    
-      if (source=="Server") {
+      querySnapshot.forEach((doc) => {      
+          console.log("user");
+          apps.push({
+            "title":"totu",
+            "password":"Pass"
+          });   
+      });
       
-        apps.push({
-          "title":doc.id,
-          "password":doc.get("Pass")
-        });
-      }
-  
+      
+    });
     
-     unsubscribe();
-  });
-  setData(apps);
-
-  
-});
-  },[DATA]);
-  async function add(name,pass) {
-    // is text empty?
+    console.log(apps[0]);
+    //unsubscribe();
+    */
     
-  try {
-    const docRef = await setDoc(doc(db, emailUser,name), {
     
-    Pass: pass,
-    
-  });
-  console.log("Document written with ID: ");
-  } catch (e) {
-  console.error("Error adding document: ", e);
-  }
-  };
-
   
   
-    const [visible,setVisible]=useState(false);  
-    const toggleOverlay = () => {
+  
+  const [visible,setVisible]=useState(false);  
+  const toggleOverlay = () => {
         setVisible(!visible);
-    };
+  };
     const renderItem = ({ item }) => (
         <Card wrapperStyle={styling.Card}>
             <Avatar avatarStyle={styling.avatarTitle} source={require("./assets/emptyIcon.png")} size="medium"  activeOpacity={0.6}/>
@@ -107,7 +149,7 @@ export default function HomeScreen() {
         <SafeAreaView style={styling.screen}>
             
             <FlatList
-            data={DATA}
+            data={apps}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
             />
@@ -117,8 +159,9 @@ export default function HomeScreen() {
               <Input placeholder="Associated App" onChangeText={(text) => setName(text)}
               ></Input>
               <Input placeholder="Password" onChangeText={(text) => setPass(text)} ></Input>                
-              <Button style={styling.button} raised={true} title="Submit" onPress={()=>{add(name,pass);
-                setName(null); setPass(null); setSend(!send); setVisible(!visible)}}></Button>
+              <Button style={styling.button} raised={true} title="Submit" onPress={async ()=>{await add(name,pass);
+                await getDB();
+                setName(null); setPass(null);setVisible(!visible); }}></Button>
             </Overlay>
             
       

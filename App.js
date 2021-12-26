@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet,View,Text } from 'react-native';
+import React,{ useState, useEffect, useRef } from 'react';
+import { StyleSheet,View,Text, Button, Platform} from 'react-native';
 import { Card } from 'react-native-elements';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -15,13 +15,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import TabScreen from './TabScreen';
 import DrawerScreen from './DrawerScreen';
+import { collection, addDoc,doc,setDoc,getDocs ,getFirestore, collectionGroup,query,onSnapshot,serverTimestamp} from "firebase/firestore";
+import { getAuth ,onAuthStateChanged} from 'firebase/auth';
 
-
+import {app} from "./Firebase" 
 
 const Stack = createStackNavigator();
-
-
-
 
 
 
@@ -31,39 +30,7 @@ const Stack = createStackNavigator();
 export default function App() {
   
   return (
-    /*<NavigationContainer>
-      <Tab.Navigator
-
-      screenOptions={({ route }) => ({
-        headerStyle: styling.header,
-        headerTitleStyle: styling.headerTitle,
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === 'Home') {
-            iconName = focused
-              ? 'list'
-              : 'list';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'gear' : 'gear';
-          }
-
-          // You can return any component that you like here!
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#EBD660',
-        tabBarInactiveTintColor: 'white',
-        tabBarActiveBackgroundColor: "transparent",
-        tabBarInactiveBackgroundColor: "transparent",
-        tabBarStyle: styling.tabBar,
-        headerTransparent:false,
-        
-      })}
-      >
-        <Tab.Screen name="Home" component={Home} />
-        <Tab.Screen name="Settings" component={Settings} />
-      </Tab.Navigator>
-    </NavigationContainer>*/
+    
     <NavigationContainer>
       <Stack.Navigator>
       <Stack.Screen name="Login" component={Login} />
